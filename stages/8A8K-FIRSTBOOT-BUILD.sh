@@ -66,10 +66,10 @@ fi
 
 tar -xzf "$TMP/agent.tar.gz" -C /
 systemctl daemon-reload
-systemctl enable quikefix-remote-bootstrap.service 2>/dev/null || true
-systemctl enable quikefix-remote-bootstrap.timer 2>/dev/null || true
-systemctl start quikefix-remote-bootstrap.timer 2>/dev/null || true
-systemctl start quikefix-remote-bootstrap.service 2>/dev/null || true
+systemctl enable quikefix-edge-remote-bootstrap.service 2>/dev/null || true
+systemctl enable quikefix-edge-remote-bootstrap.timer 2>/dev/null || true
+systemctl start quikefix-edge-remote-bootstrap.timer 2>/dev/null || true
+systemctl start quikefix-edge-remote-bootstrap.service 2>/dev/null || true
 exit 0
 __QF_PAYLOAD_BELOW__
 SCRIPT
