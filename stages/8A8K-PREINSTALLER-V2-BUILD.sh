@@ -36,7 +36,6 @@ sub sh_capture {
 sub parent_disk {
     my ($dev) = @_;
     return '' if !$dev || $dev !~ m{^/dev/([^/]+)$};
-    my $name = $1;
     my $type = sh_capture('/usr/bin/lsblk','-dnro','TYPE',$dev);
     return $dev if $type eq 'disk';
     my $pk = sh_capture('/usr/bin/lsblk','-dnro','PKNAME',$dev);
@@ -132,7 +131,6 @@ $continue->signal_connect(clicked=>sub {
         "FINAL STORAGE CONFIRMATION\n\n$name\nCapacity: $size\nSerial: $serial\n\nAll data on this selected disk will be erased when installation starts.\n\nContinue?");
     my $resp=$d->run; $d->destroy; return if $resp ne 'yes';
 
-    # Revalidate that the exact stable identifier still maps to exactly one installer-recognized disk.
     my $matches=0;
     for my $idx (keys %{$data->{disks}}) { my $u=$data->{disks}{$idx}||{}; $matches++ if defined($u->{$fk}) && $u->{$fk} eq $fv; }
     fatal('Safety validation failed: selected disk identity is no longer unique.') if $matches != 1;
@@ -141,8 +139,6 @@ $continue->signal_connect(clicked=>sub {
     my $password=sh_capture('/usr/bin/python3','-c','import secrets; print(secrets.token_urlsafe(36))');
     fatal('Unable to generate temporary installation credential.') if !$password;
     my $hash='';
-    if (open my $ph,'|-','/usr/bin/openssl','passwd','-6','-stdin') { print {$ph} "$password\n"; close $ph; }
-    # Capture without command-line password exposure using a temporary 0600 pipe file instead.
     my $tmp='/run/quikefix-temp-password';
     open my $tf,'>',$tmp or fatal('Unable to prepare temporary credential.'); chmod 0600,$tmp; print {$tf} "$password\n"; close $tf;
     $hash=sh_capture('/usr/bin/openssl','passwd','-6','-in',$tmp); unlink $tmp; $password='';
